@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+<Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+    <PatternLayout pattern="%date %-5level %t - %msg%n"/>
+    </Console>
+    <RollingFile name="File" fileName="./logs/worker.log"
+           filePattern="./logs/worker%d{yyyy-MM-dd}.%i.log">
+      <!--ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/-->
+      <PatternLayout pattern="%date %-5level %t - %msg%n"/>
+      <Policies>
+          <TimeBasedTriggeringPolicy/>
+          <SizeBasedTriggeringPolicy size="500 MB"/>
+      </Policies>
+      <DefaultRolloverStrategy max="30"/>
+    </RollingFile>
+</Appenders>
+<Loggers>
+    <Root level="info">
+     <AppenderRef ref="Console"/>
+     <AppenderRef ref="File"/>
+    </Root>
+</Loggers>
+</Configuration>

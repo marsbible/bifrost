@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.bifrost.worker.grpc";
+option java_outer_classname = "PredictProto";
+
+package grpc;
+
+service PredictService {
+    // Predict with the model
+    rpc Predict (PredictRequest) returns (PredictReply) {}
+    rpc PredictMulti (PredictRequests) returns (PredictReplies) {}
+}
+
+// for sparse tensor
+message DataIndex {
+    repeated sint32 index = 1;
+}
+
+//for TOO Many Parameters,we will split them to several  Packed Parameter(Max 120 In One Pack)
+// The request message
+message PredictRequest {
+    double loan_amount = 1;
+    string fico_score_group_fnl = 2;
+    double dti = 3;
+    }
+
+message PredictRequests {
+    repeated PredictRequest request = 1;
+}
+
+// The response message
+message PredictReply {
+    repeated double rawPrediction = 1;
+    repeated double probability = 2;
+    double prediction = 3;
+    repeated DataIndex rawPrediction_indices = 4;
+    repeated DataIndex probability_indices = 5;
+    }
+
+message PredictReplies {
+    repeated  PredictReply reply = 1;
+}

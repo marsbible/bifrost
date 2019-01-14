@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/data1/recommend/jupyterlab/share/jupyter/kernels/apache_toree_scala/bin/run.sh",
+    "--profile",
+    "{connection_file}"
+  ],
+  "env": {
+    "DEFAULT_INTERPRETER": "Scala",
+    "__TOREE_SPARK_OPTS__": "--conf spark.jars.ivy=/data1/recommend/ivy --packages ml.dmlc:xgboost4j-spark:0.80,com.databricks:spark-avro_2.11:3.2.0,ml.combust.mleap:mleap-spark_2.11:0.12.0,ml.combust.mleap:mleap-spark-extension_2.11:0.12.0,ml.combust.mleap:mleap-xgboost-spark_2.11:0.12.0",
+    "__TOREE_OPTS__": "",
+    "SPARK_HOME": "/data1/recommend/spark-2.3.2-bin-hadoop2.6",
+    "PYTHONPATH": "/data1/recommend/spark-2.3.2-bin-hadoop2.6/python:/data1/recommend/spark-2.3.2-bin-hadoop2.6/python/lib/py4j-0.10.7-src.zip",
+    "PYTHON_EXEC": "python"
+  },
+  "display_name": "Apache Toree - Scala",
+  "language": "scala",
+  "interrupt_mode": "signal",
+  "metadata": {}
+}

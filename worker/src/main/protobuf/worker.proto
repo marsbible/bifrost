@@ -1,0 +1,41 @@
+// 自定义接口模板，很多情况根据模型自动生成的grpc接口无法满足需求，可以参考此模板和service中相应代码
+// 实现自定义接口
+syntax = "proto3";
+
+import "predict.proto";
+option java_multiple_files = true;
+option java_package = "org.bifrost.worker.grpc";
+
+package grpc;
+
+service WorkerService {
+    // 如果reply需要重新定义，使用下面的接口定义
+    //rpc Predict (BridgingRequest) returns (BridgingReply) {}
+    //rpc PredictMulti (BridgingRequests) returns (BridgingReplies) {}
+
+    //如果reply和predict保持一样，直接返回即可，效率更高
+    rpc Predict (WorkerRequest) returns (PredictReply) {}
+    rpc PredictMulti (WorkerRequests) returns (PredictReplies) {}
+}
+
+// 自定义请求信息
+message WorkerRequest {
+    //xid，演示用，本结构由用户自由定义
+    string xid = 1;
+    //...其余自定义的字段...
+}
+
+message WorkerRequests {
+    repeated WorkerRequest request = 1;
+}
+
+// 自定义响应信息
+//message WorkerReply {
+    //...添加自定义的字段...
+    //原始的预测信息
+//    PredictReply predict_reply = 1;
+//}
+
+//message WorkerReplies {
+//    repeated  WorkerReply reply = 1;
+//}

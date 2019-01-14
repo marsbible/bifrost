@@ -1,0 +1,61 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'com.google.protobuf'
+
+group 'bifrost'
+version '0.1'
+
+repositories {
+    mavenCentral()
+}
+
+buildscript {
+    repositories {
+        jcenter()
+        //mavenCentral()
+    }
+    dependencies {
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.7'
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.5.1-1"
+    }
+    plugins {
+        grpc {
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.16.1'
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+}
+ 
+dependencies {
+    compile('org.apache.zookeeper:zookeeper:3.4.13')
+    ['armeria',
+     'armeria-grpc',
+     'armeria-jetty',
+     'armeria-kafka',
+     'armeria-logback',
+     'armeria-retrofit2',
+     'armeria-zookeeper'].each {
+        compile("com.linecorp.armeria:${it}:0.75.0") {
+            exclude group: 'org.apache.zookeeper', module: 'zookeeper'
+        }
+    }
+
+    // Logging
+    runtime 'ch.qos.logback:logback-classic:1.2.3'
+    runtime 'org.slf4j:log4j-over-slf4j:1.7.25'
+}
+ 
+// Require Java 8 to build the project.
+tasks.withType(JavaCompile) {
+    sourceCompatibility '1.8'
+    targetCompatibility '1.8'
+}

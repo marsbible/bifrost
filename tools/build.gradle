@@ -1,0 +1,58 @@
+/**
+ * TODO: 注意和worker里mleap的版本保持一致
+ */
+plugins {
+    id 'java'
+    id 'scala'
+    id 'idea'
+    id 'application'
+}
+
+group 'bifrost'
+version '0.1'
+
+sourceCompatibility = 1.8
+mainClassName = 'org.bifrost.tools.Main'
+
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+    jcenter()
+    //mavenCentral()
+}
+
+dependencies {
+    //predict framework
+    if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+        //maven上的xgboost4j不支持windows，用第三方编译的
+        compile name: 'xgboost4j-0.81-win64'
+    }
+
+    compile "ml.combust.mleap:mleap-runtime_2.11:0.13.0"
+    compile group: 'ml.combust.mleap', name: 'mleap-xgboost-runtime_2.11', version: '0.13.0'
+    //template engine
+    compile group: 'org.scalatra.scalate', name: 'scalate-core_2.11', version: '1.9.0'
+
+    compile group:"com.typesafe.akka", name: "akka-slf4j_2.11", version: "2.5.18"
+    compile group:"ch.qos.logback", name:"logback-classic", version:"1.2.3"
+}
+
+jar {
+    zip64 true
+    archiveName = "bifrost-tools.jar"
+
+    manifest {
+        attributes 'Main-Class': 'org.bifrost.tools.Main'
+        attributes 'Class-Path': configurations.runtime.files.collect { "libs/$it.name" }.join(' ')
+    }
+
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
+}
+
+task copyToLib(type: Copy) {
+    into "$buildDir/output/libs"
+    from configurations.runtime
+}
+
+build.dependsOn(copyToLib)

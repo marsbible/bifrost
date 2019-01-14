@@ -1,0 +1,64 @@
+group 'bifrost'
+version '0.1'
+
+import org.gradle.internal.os.OperatingSystem
+apply plugin: 'java'
+apply plugin: 'scala'
+apply plugin: 'idea'
+sourceCompatibility = 1.8
+
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+    jcenter()
+    //mavenCentral()
+}
+
+// 下面的依赖都是基于spark 2.3版本设置，如果使用低版本的spark需要相应调整，注意xgboost4j-spark需要的spark最低版本是2.3
+dependencies {
+    compile group: 'org.apache.spark', name: 'spark-core_2.11', version: '2.3.2'
+    compile group: 'org.apache.spark', name: 'spark-sql_2.11', version: '2.3.2'
+    compile group: 'org.apache.spark', name: 'spark-mllib_2.11', version: '2.3.2'
+
+    if (OperatingSystem.current().isWindows()) {
+        compile name: 'xgboost4j-0.81-win64'
+    }
+    else if(OperatingSystem.current().isMacOsX()){
+        compile name: 'xgboost4j-0.81-osx'
+    }
+    else {
+        compile name: 'xgboost4j-0.81-linux'
+    }
+
+    compile group: 'com.databricks', name: 'spark-avro_2.11', version: '3.2.0'
+
+    compile "org.scala-lang:scala-library:2.11.7"
+    compile "org.scala-lang:scala-compiler:2.11.7"
+    compile "org.scala-lang:scala-reflect:2.11.7"
+
+    compile "ml.combust.mleap:mleap-spark_2.11:0.13.0"
+    compile "ml.combust.mleap:mleap-spark-extension_2.11:0.13.0"
+    compile("ml.combust.mleap:mleap-xgboost-spark_2.11:0.13.0") {
+        exclude group: 'ml.dmlc', module: 'xgboost4j'
+    }
+
+    // runtime dependency
+    compile "ml.combust.mleap:mleap-runtime_2.11:0.13.0"
+    compile group: 'ml.combust.mleap', name: 'mleap-xgboost-runtime_2.11', version: '0.13.0'
+}
+
+jar {
+    zip64 true
+    archiveName = "bifrost-jserver.jar"
+    //from {
+    //    configurations.compile.collect {
+    //        it.isDirectory() ? it : zipTree(it)
+    //    }
+    //}
+    manifest {
+        attributes 'Main-Class': 'org.bifrost.jserver.Server'
+    }
+
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
+}
