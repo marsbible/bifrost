@@ -8,6 +8,7 @@ import ml.combust.mleap.tensor.SparseTensor
 import org.bifrost.worker.Main
 import org.bifrost.worker.common._
 import org.bifrost.worker.grpc._
+import scalapb.json4s.JsonFormat
 
 import scala.concurrent.Future
 
@@ -17,7 +18,8 @@ import scala.concurrent.Future
 class PredictServiceImpl(main: Main, modelPath: String) extends PredictService with Predict{
   private implicit val mat: Materializer = main.mat
   private val logger: LoggingAdapter = main.logger
-  val (mleapPipeline, outputFields, rowTransformer) = init(modelPath)
+  val (mleapPipeline, outputFields, rowTransformer, rowsTransformer) = init(modelPath)
+  val batchEnabled: Boolean = main.cnf.getBoolean("predict.batch")
 
 
   def fromRequest(request: PredictRequest): DefaultLeapFrame = {
@@ -78,14 +80,17 @@ class PredictServiceImpl(main: Main, modelPath: String) extends PredictService w
 
       Future.successful(reply)
     } catch {
-      case t: Throwable => Future.failed(new GrpcServiceException(io.grpc.Status.INVALID_ARGUMENT.withDescription(t.getMessage)))
+      case t: Throwable => {
+        logger.warning("predict error: {}, request: {}", t.getMessage, JsonFormat.toJsonString(in))
+        Future.failed(new GrpcServiceException(io.grpc.Status.INVALID_ARGUMENT.withDescription(t.getMessage)))
+      }
     }
   }
 
   override def predictMulti(in: PredictRequests): Future[PredictReplies] = {
     val start = System.currentTimeMillis()
     try {
-      val df = transform(fromRequests(in))
+      val df = transforms(fromRequests(in))
       val replies = toReplies(df)
 
       val end = System.currentTimeMillis()
@@ -93,7 +98,10 @@ class PredictServiceImpl(main: Main, modelPath: String) extends PredictService w
 
       Future.successful(replies)
     }catch {
-      case t: Throwable => Future.failed(new GrpcServiceException(io.grpc.Status.INVALID_ARGUMENT.withDescription(t.getMessage)))
+      case t: Throwable => {
+        logger.warning("predictMulti error: {}, request: {}", t.getMessage, JsonFormat.toJsonString(in))
+        Future.failed(new GrpcServiceException(io.grpc.Status.INVALID_ARGUMENT.withDescription(t.getMessage)))
+      }
     }
   }
 }

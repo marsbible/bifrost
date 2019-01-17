@@ -51,6 +51,7 @@ class Main(system: ActorSystem, conf: Config) {
   implicit val mat: Materializer = ActorMaterializer()
   implicit val ec: ExecutionContext = sys.dispatcher
   implicit val logger: LoggingAdapter = sys.log
+  implicit val cnf: Config = conf
 
   private val CONF_PREFIX = "datasources"
   private var clients: Map[String, Object] = Map()

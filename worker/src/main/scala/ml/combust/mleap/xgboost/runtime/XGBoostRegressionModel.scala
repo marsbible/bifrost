@@ -14,12 +14,15 @@ case class XGBoostRegressionModel(booster: Booster,
                                   treeLimit: Int) extends Model {
   def predict(tensor: Tensor[Double]): Double = predict(tensor.asXGB)
   def predict(data: DMatrix): Double = booster.predict(data, outPutMargin = false, treeLimit = treeLimit).head(0)
+  def predictBatch(data: DMatrix): Seq[Double] = booster.predict(data, outPutMargin = false, treeLimit = treeLimit).map(_(0).toDouble)
 
   def predictLeaf(tensor: Tensor[Double]): Seq[Double] = predictLeaf(tensor.asXGB)
   def predictLeaf(data: DMatrix): Seq[Double] = booster.predictLeaf(data, treeLimit = treeLimit).head.map(_.toDouble)
+  def predictLeafBatch(data: DMatrix): Seq[Seq[Double]] = booster.predictLeaf(data, treeLimit = treeLimit).map(row => row.map(_.toDouble).toSeq)
 
   def predictContrib(tensor: Tensor[Double]): Seq[Double] = predictContrib(tensor.asXGB)
   def predictContrib(data: DMatrix): Seq[Double] = booster.predictContrib(data, treeLimit = treeLimit).head.map(_.toDouble)
+  def predictContribBatch(data: DMatrix): Seq[Seq[Double]] = booster.predictContrib(data, treeLimit = treeLimit).map(row => row.map(_.toDouble).toSeq)
 
   override def inputSchema: StructType = StructType("features" -> TensorType.Double(numFeatures)).get
 

@@ -10,8 +10,8 @@ package grpc;
 
 service WorkerService {
     // 如果reply需要重新定义，使用下面的接口定义
-    //rpc Predict (BridgingRequest) returns (BridgingReply) {}
-    //rpc PredictMulti (BridgingRequests) returns (BridgingReplies) {}
+    //rpc Predict (WorkerRequest) returns (WorkerReply) {}
+    //rpc PredictMulti (WorkerRequests) returns (WorkerReplies) {}
 
     //如果reply和predict保持一样，直接返回即可，效率更高
     rpc Predict (WorkerRequest) returns (PredictReply) {}
